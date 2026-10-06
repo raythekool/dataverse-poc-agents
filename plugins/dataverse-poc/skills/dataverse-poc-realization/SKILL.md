@@ -127,6 +127,7 @@ Generative page nella solution (verificato con PAC 2.12.2):
 - Elenco delle pagine in ambiente: `pacx data query -q "<fetch><entity name='uxagentproject'><attribute name='name'/></entity></fetch>"`.
 - Verifica dopo l'export: lo zip contiene `uxagentprojects/<pageId>/uxagentproject.xml` e `uxagentprojectfiles/<fileId>/filecontent/` con `page.tsx`, `page.compiled`, `config.json` e `firstPrompt.json`. Le pagine **non** compaiono in `<RootComponents>` di `solution.xml`: per verificarle, controllare le cartelle nello zip.
 - Nel target arrivano solo il primo prompt e il codice pubblicato, non la conversazione. Le pagine create in preview vanno aperte una volta nel designer per migrarle.
+- Una solution managed non si importa nell'ambiente dove la stessa solution è unmanaged (tipicamente il DEV sorgente): l'import viene rifiutato. Prima di un rilascio managed, verificare che l'URL del profilo di destinazione sia diverso da quello sorgente. Se coincide, fare solo l'export managed e restituire `BLOCCATO` per l'import. Non cancellare la solution unmanaged per "convertirla".
 - Alternativa code-first: `pac model genpage download` dall'origine, `upload` nella destinazione, poi `pac model genpage add` per agganciarle alla sitemap. Fonte: [Adding generative pages to solutions](https://learn.microsoft.com/power-apps/maker/model-driven-apps/generative-pages#adding-generative-pages-to-solutions).
 
 Strumenti e sotto-agenti:
