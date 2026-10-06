@@ -119,7 +119,7 @@ Dataverse:
 - PACX crea le choice locali con suffisso `code` (es. `ava_categorycode`): mappare il nome del dataset sul logical name reale.
 - Sitemap: i titoli richiedono la LCID della lingua utente (es. `1040`) o compaiono come "Nuova area secondaria"; aggiornare con AppMaker `sitemap_update`, poi `pacx publish all`.
 
-- `pac solution export` non include le generative page; la sitemap le referenzia con `GenPageId`. Per un rilascio su un altro ambiente: importare la solution, ricaricare ogni pagina dai sorgenti con `pac model genpage upload`, poi aggiornare i `GenPageId` della sitemap con i nuovi ID.
+- Le generative page sono *solution-aware* (componenti **UX Agent Project**), ma entrano nella solution solo come componenti richiesti dell'app/sitemap: caricarle con `pac model genpage upload` non le aggiunge alla solution. Prima di un export: `pac solution add-solution-component --solutionUniqueName <sol> --component <appmodule unique name> --componentType 80 --AddRequiredComponents`, poi verificare nello zip che le pagine ci siano. Se non vengono richieste: aprire la pagina nel designer (migrazione delle pagine create in preview) o modificare e ripubblicare la sitemap, poi riprovare. Alternativa code-first: `pac model genpage download` dall'origine, `upload` nella destinazione, `pac model genpage add` per agganciarle alla sitemap. Nel target resta solo il primo prompt e il codice pubblicato, non la conversazione. Fonte: [Adding generative pages to solutions](https://learn.microsoft.com/power-apps/maker/model-driven-apps/generative-pages#adding-generative-pages-to-solutions).
 
 Strumenti e sotto-agenti:
 
