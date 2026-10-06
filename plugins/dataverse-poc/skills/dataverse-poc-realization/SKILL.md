@@ -25,7 +25,8 @@ Lo stato della POC vive nel **documento di piano** (es. `POC/Piano_<Iniziativa>_
 | Chiave                   | Esempio                           |
 | ------------------------ | --------------------------------- |
 | URL ambiente             | `https://<org>.crm4.dynamics.com` |
-| Profilo PAC / PACX       | nome profilo selezionato          |
+| Profilo PAC              | nome profilo in `pac auth list`   |
+| Profilo PACX             | nome profilo in `pacx auth list`  |
 | Solution (unique name)   | `<cliente>demo`                   |
 | Publisher prefix         | `ava`                             |
 | App module (unique name) | se esiste                         |
@@ -117,6 +118,13 @@ Dataverse:
 - I valori delle choice locali su tabelle custom partono da `7139500xx` (dipende dal publisher): leggerli dai metadata, non assumerli.
 - PACX crea le choice locali con suffisso `code` (es. `ava_categorycode`): mappare il nome del dataset sul logical name reale.
 - Sitemap: i titoli richiedono la LCID della lingua utente (es. `1040`) o compaiono come "Nuova area secondaria"; aggiornare con AppMaker `sitemap_update`, poi `pacx publish all`.
+
+- `pac solution export` non include le generative page; la sitemap le referenzia con `GenPageId`. Per un rilascio su un altro ambiente: importare la solution, ricaricare ogni pagina dai sorgenti con `pac model genpage upload`, poi aggiornare i `GenPageId` della sitemap con i nuovi ID.
+
+Strumenti e sotto-agenti:
+
+- Nei sotto-agenti gli strumenti MCP "deferred" (es. AppMaker) possono non essere caricabili: in quel caso usare letture CLI (`pac`/`pacx`, ispezione dello zip esportato) oppure restituire `BLOCCATO` indicando la verifica da far eseguire all'agente principale.
+- `pac org who` in un terminale di sotto-agente può restituire output parziale con exit code 1: ripetere una volta; i nomi dei profili PAC si leggono con `pac auth list`, quelli PACX con `pacx auth list` (possono essere diversi per lo stesso URL).
 
 Generative page:
 

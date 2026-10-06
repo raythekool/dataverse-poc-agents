@@ -24,5 +24,5 @@ Sei lo specialista di **ambiente e ALM** della POC. Ricevi un brief e restituisc
 1. **Preflight**: `pac org who`, `pacx auth list`; verifica che URL e profilo coincidano con il brief e che l'utente abbia diritti di scrittura.
 2. **Solution**: verifica o crea publisher e solution unmanaged del brief; imposta la solution di default per PACX se richiesto.
 3. **Inventario**: elenca i componenti in solution e segnala quelli attesi dal piano ma mancanti, e quelli presenti ma non attesi.
-4. **Publish / export / import** secondo il brief; dopo un import, attiva i flow indicati e verifica lo stato.
+4. **Publish / export / import** secondo il brief; dopo un import, attiva i flow indicati e verifica lo stato. Le generative page non viaggiano nella solution: dopo l'export elenca i `GenPageId` referenziati dalla sitemap e, dopo un import, riporta in `DECISIONI APERTE` il ricaricamento delle pagine (`poc-genpage`) e il riallineamento della sitemap (`poc-forms-views`).
 5. Report standard con versione della solution, componenti, esito di ogni comando.
