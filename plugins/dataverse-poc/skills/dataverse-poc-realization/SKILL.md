@@ -119,7 +119,15 @@ Dataverse:
 - PACX crea le choice locali con suffisso `code` (es. `ava_categorycode`): mappare il nome del dataset sul logical name reale.
 - Sitemap: i titoli richiedono la LCID della lingua utente (es. `1040`) o compaiono come "Nuova area secondaria"; aggiornare con AppMaker `sitemap_update`, poi `pacx publish all`.
 
-- Le generative page sono *solution-aware* (componenti **UX Agent Project**), ma entrano nella solution solo come componenti richiesti dell'app/sitemap: caricarle con `pac model genpage upload` non le aggiunge alla solution. Prima di un export: `pac solution add-solution-component --solutionUniqueName <sol> --component <appmodule unique name> --componentType 80 --AddRequiredComponents`, poi verificare nello zip che le pagine ci siano. Se non vengono richieste: aprire la pagina nel designer (migrazione delle pagine create in preview) o modificare e ripubblicare la sitemap, poi riprovare. Alternativa code-first: `pac model genpage download` dall'origine, `upload` nella destinazione, `pac model genpage add` per agganciarle alla sitemap. Nel target resta solo il primo prompt e il codice pubblicato, non la conversazione. Fonte: [Adding generative pages to solutions](https://learn.microsoft.com/power-apps/maker/model-driven-apps/generative-pages#adding-generative-pages-to-solutions).
+Generative page nella solution (verificato con PAC 2.12.2):
+
+- Le generative page sono *solution-aware*: tabella `uxagentproject` ("UX Agent Project"), con i file in `uxagentprojectfile`. Il **page id coincide con `uxagentprojectid`**. `pac model genpage upload` non ha un parametro di solution e non aggiunge la pagina alla solution.
+- Aggiungerle **una per una per nome di tipo**: `pac solution add-solution-component --solutionUniqueName <sol> --component <pageId> --componentType uxagentproject --AddRequiredComponents true`. I file della pagina entrano come componenti richiesti.
+- Non usare codici numerici di tipo: il codice di `uxagentproject` dipende dall'ambiente (si legge da `solutioncomponentdefinition`). Passare dall'app non funziona: `--componentType 80` restituisce "Component Type Id (80) is not known" e `--componentType AppModule` restituisce "Invalid component type 9006".
+- Elenco delle pagine in ambiente: `pacx data query -q "<fetch><entity name='uxagentproject'><attribute name='name'/></entity></fetch>"`.
+- Verifica dopo l'export: lo zip contiene `uxagentprojects/<pageId>/uxagentproject.xml` e `uxagentprojectfiles/<fileId>/filecontent/` con `page.tsx`, `page.compiled`, `config.json` e `firstPrompt.json`. Le pagine **non** compaiono in `<RootComponents>` di `solution.xml`: per verificarle, controllare le cartelle nello zip.
+- Nel target arrivano solo il primo prompt e il codice pubblicato, non la conversazione. Le pagine create in preview vanno aperte una volta nel designer per migrarle.
+- Alternativa code-first: `pac model genpage download` dall'origine, `upload` nella destinazione, poi `pac model genpage add` per agganciarle alla sitemap. Fonte: [Adding generative pages to solutions](https://learn.microsoft.com/power-apps/maker/model-driven-apps/generative-pages#adding-generative-pages-to-solutions).
 
 Strumenti e sotto-agenti:
 

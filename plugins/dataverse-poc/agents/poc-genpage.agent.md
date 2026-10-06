@@ -25,6 +25,7 @@ Sei lo specialista delle **generative page**. Ogni invocazione riguarda **una so
 
 1. Leggi brief, componenti e requisiti; elenca le sezioni della pagina e i campi per sezione.
 2. Scrivi o aggiorna il `.tsx`; compila e risolvi gli errori di tipo pertinenti alla pagina.
-3. Stage R: preflight, poi upload con `pac model genpage upload` (con `--prompt`), nella solution e app del brief.
-4. Restituisci page id e URL diretto, così `poc-tester` può verificarla nel browser.
-5. Report standard, con la mappa sezione → requisiti coperti.
+3. Stage R: preflight, poi upload con `pac model genpage upload` (con `--prompt`) nell'app del brief.
+4. L'upload non aggiunge la pagina alla solution: subito dopo, esegui `pac solution add-solution-component --solutionUniqueName <sol del brief> --component <pageId> --componentType uxagentproject --AddRequiredComponents true`. Il page id coincide con `uxagentprojectid`.
+5. Restituisci page id, URL diretto e conferma di presenza in solution, così `poc-tester` può verificarla nel browser.
+6. Report standard, con la mappa sezione → requisiti coperti.

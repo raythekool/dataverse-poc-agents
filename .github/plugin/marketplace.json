@@ -13,7 +13,7 @@
       "name": "dataverse-poc",
       "source": "./plugins/dataverse-poc/",
       "description": "Orchestratore + 10 sotto-agenti nascosti per POC Dataverse: prototipo HTML/YAML, datamodel, dati demo, form/viste/sitemap, generative page, PCF, web resource, code app, test, deploy. Include guardia PreToolUse sui comandi PAC/PACX.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }
