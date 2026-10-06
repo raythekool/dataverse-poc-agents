@@ -1,0 +1,19 @@
+{
+  "name": "dataverse-poc-agents",
+  "metadata": {
+    "description": "Marketplace di plugin per POC Dataverse e Power Platform gestite da un orchestratore multi-agente.",
+    "version": "1.0.0"
+  },
+  "owner": {
+    "name": "Marco Dodaro",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "dataverse-poc",
+      "source": "./plugins/dataverse-poc/",
+      "description": "Orchestratore + 10 sotto-agenti nascosti per POC Dataverse: prototipo HTML/YAML, datamodel, dati demo, form/viste/sitemap, generative page, PCF, web resource, code app, test, deploy. Include guardia PreToolUse sui comandi PAC/PACX.",
+      "version": "1.0.0"
+    }
+  ]
+}
