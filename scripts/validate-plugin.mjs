@@ -1,4 +1,6 @@
-// Validates plugin structure: manifests, skill/agent frontmatter, subagent references, relative links, hook scripts.
+// Validates plugin structure: manifests, skill/agent frontmatter, subagent references, relative links, hook and
+// plugin scripts referenced by agents and skills, JavaScript syntax.
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -63,6 +65,13 @@ for (const entry of market?.plugins ?? []) {
         }
     }
 
+    // Plugin scripts named in agents and skills must exist (agents run them by name).
+    for (const file of walk(pluginDir).filter((f) => f.endsWith('.md'))) {
+        for (const m of readFileSync(file, 'utf8').matchAll(/<plugin-root>\/scripts\/([\w.-]+\.m?c?js)/g)) {
+            if (!existsSync(join(pluginDir, 'scripts', m[1]))) errors.push(`${file.replace(root, '.')}: script inesistente scripts/${m[1]}`);
+        }
+    }
+
     const hooksFile = join(pluginDir, manifest.hooks ?? 'hooks.json');
     if (existsSync(hooksFile)) {
         for (const script of readFileSync(hooksFile, 'utf8').match(/scripts\/[\w.-]+/g) ?? []) {
@@ -78,6 +87,12 @@ for (const file of walk(root).filter((f) => f.endsWith('.md'))) {
         if (/^(https?:|mailto:)/.test(target)) continue;
         if (!existsSync(resolve(dirname(file), decodeURIComponent(target)))) errors.push(`${file.replace(root, '.')}: link rotto ${target}`);
     }
+}
+
+// Syntax check of every script shipped in the repository (plugin scripts, POC template, assets).
+for (const file of walk(root).filter((f) => /\.(mjs|cjs|js)$/.test(f))) {
+    const r = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
+    if (r.status !== 0) errors.push(`${file.replace(root, '.')}: sintassi non valida (${r.stderr.trim().split('\n').find((l) => /Error/.test(l)) ?? ''})`);
 }
 
 if (errors.length) {

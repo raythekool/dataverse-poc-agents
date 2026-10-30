@@ -2,6 +2,8 @@
 
 Plugin per agenti Copilot (VS Code e Copilot CLI) che gestisce le **POC su Dataverse / Power Platform** con un orchestratore e sotto-agenti specializzati. Contenuti e istruzioni sono in italiano.
 
+Il lavoro meccanico (scaffold, validazione, build, copertura, smoke test, preflight dell'ambiente, verifica degli zip) e affidato a **script Node deterministici**: gli agenti ragionano solo su decisioni, requisiti e contenuti. Tutorial passo passo: [docs/tutorial-init.md](../../docs/tutorial-init.md).
+
 ### Cosa contiene
 
 | Componente | Tipo | Visibile all'utente | Ruolo |
@@ -17,14 +19,26 @@ Plugin per agenti Copilot (VS Code e Copilot CLI) che gestisce le **POC su Datav
 | `poc-code-app` | agente | no | Power Apps code app (React/Vite) per POC `appType: code-app` |
 | `poc-tester` | agente | no | Verifica indipendente: validator, smoke test Playwright, metadata, browser |
 | `poc-deployer` | agente | no | Preflight ambiente, solution, publish, export/import, inventario cleanup |
+| `dataverse-poc-init` | skill | `/` | Setup di una POC nuova: requisiti, quattro domande, scaffold, piano, primo check |
 | `dataverse-poc-planner` | skill | `/` | appType, scope, schermate, percorso demo |
 | `dataverse-poc-schema` | skill | `/` | Contratto Dataverse di tabelle e colonne |
 | `dataverse-poc-model-driven` | skill | `/` | Prototipo model-driven con chrome Dynamics 365 CE |
 | `dataverse-poc-code-app` | skill | `/` | Prototipo code app |
-| `dataverse-poc-pipeline` | skill | `/` | Scaffold, validator, build, smoke test, copertura requisiti |
+| `dataverse-poc-pipeline` | skill | `/` | Comandi della pipeline: init, baseline standard, `npm run check`, aggiornamento script |
 | `dataverse-poc-realization` | skill | no | Contratto multi-agente: stage gate, brief/report, ownership, guardrail, gotcha |
-| `prototype-dataverse-app` | skill | no | Riferimenti e asset condivisi (schema YAML, shell D365, app standard, smoke test) |
+| `prototype-dataverse-app` | skill | no | Riferimenti e asset condivisi (schema YAML, template della pipeline, renderer generico, shell D365, app standard, smoke test) |
 | `poc-guard` | hook `PreToolUse` | — | Chiede conferma prima di comandi PAC/PACX distruttivi, cambi di ambiente, URL espliciti, import di solution |
+
+### Script
+
+| Script | Cosa fa | Chi lo usa |
+| --- | --- | --- |
+| `scripts/check-prereqs.mjs` | Verifica in sola lettura di Node, npm, browser, `pac`, `pacx`, profili e server MCP (`--stage P\|R`) | utente, init, orchestratore |
+| `scripts/poc-init.mjs` | Scaffold completo di una POC (esempi, piano, `npm install`, primo check); `--update` per POC esistenti | init, orchestratore |
+| `scripts/poc-add-standard.mjs` | Baseline Sales Hub / Customer Service Hub o tabelle standard, con dati sintetici | orchestratore, `poc-prototype-builder` |
+| `scripts/poc-preflight.mjs` | Profili PAC/PACX attivi contro il target del piano; blocca senza conferma dello stage R | orchestratore, sotto-agenti di stage R |
+| `scripts/poc-solution-zip.mjs` | Versione, componenti e generative page di uno zip esportato | `poc-deployer`, `poc-tester` |
+| `npm run check` (nella POC) | Validator config e dati, runtime, statico, copertura, smoke test, riepilogo JSON | orchestratore, `poc-prototype-builder`, `poc-tester` |
 
 I sotto-agenti hanno `user-invocable: false`: non compaiono nel selettore e li usa solo l'orchestratore, che li elenca in `agents:`.
 
@@ -55,7 +69,8 @@ L'orchestratore tiene lo stato in un **documento di piano** (`POC/Piano_<Iniziat
 
 ### Prerequisiti
 
-- Node.js (validator, build e smoke test delle POC; script del hook).
+- Verifica automatica: `node scripts/check-prereqs.mjs` (stage P) o `--stage R`.
+- Node.js 18+ e npm (script del plugin, pipeline delle POC, hook).
 - `pac` (Power Platform CLI) e `pacx` per lo stage R; profili di autenticazione già creati dall'utente.
 - Edge o Chrome installati per lo smoke test (`playwright-core` non scarica browser).
 - Server MCP configurati nell'installazione di VS Code. Gli agenti li referenziano con questi nomi; gli strumenti non disponibili vengono ignorati:
@@ -81,11 +96,14 @@ Se un repository contiene già copie locali degli stessi agenti o skill (in `.gi
 ### Uso
 
 1. Selezionare l'agente **Dataverse POC Orchestrator**.
-2. Descrivere requisiti, POC esistente o cartella, e fin dove arrivare (prototipo, realizzazione DEV, rilascio).
-3. Rispondere alle domande su `appType`, prefisso e, prima dello stage R, su ambiente e solution.
+2. POC nuova: scrivere `init` (o `/dataverse-poc-init`). Dettagli in [docs/tutorial-init.md](../../docs/tutorial-init.md).
+3. Descrivere requisiti, POC esistente o cartella, e fin dove arrivare (prototipo, realizzazione DEV, rilascio).
+4. Rispondere alle domande su `appType`, prefisso e, prima dello stage R, su ambiente e solution.
 
 ### Limiti noti
 
 - Il hook usa la decisione `ask`. In VS Code apre la conferma; in Copilot CLI il comportamento dipende dal supporto di `ask` nella versione in uso.
 - Il hook ispeziona solo i comandi da terminale e gli strumenti MCP con `delete` nel nome: non sostituisce i permessi in Dataverse.
-- Lo smoke test presuppone le convenzioni dei renderer della skill (`[data-nav]`, `tr[data-open]`, `[data-form-tab]`, `.sim-frame`).
+- Lo smoke test presuppone le convenzioni del renderer generico (`[data-nav]`, `tr[data-open]`, `[data-form-tab]`, `.sim-frame`): un renderer scritto a mano deve rispettarle.
+- La modalita `legacy-html` (estrazione da HTML monolitico) non ha script pronti: l'estrazione resta guidata dalle procedure.
+- `poc-add-standard.mjs` riscrive `config/index.yaml` senza i commenti.

@@ -13,3 +13,6 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/validate-plugin.mjs
+      # Unit tests of the plugin scripts plus an end-to-end scaffold (npm install, build, smoke test with Chrome).
+      - run: node --test tests/*.test.mjs
+      - run: node scripts/build-site.mjs --out _site --no-demo

@@ -1,5 +1,21 @@
 ## Changelog
 
+### 1.1.0 — 2026-10-30
+
+Meno token, piu script: il lavoro meccanico non passa piu da un modello.
+
+- **Pipeline del prototipo pronta** (`skills/prototype-dataverse-app/assets/poc-template/`): validator di config e dati, build runtime e statica, report di copertura, `npm run check` con riepilogo JSON, server senza dipendenze. Prima andavano scritti a mano per ogni POC.
+- **Renderer generico** `app/poc-app.js`: viste, moduli, dashboard, KPI, subgrid, timeline, BPF, generative page e PCF simulati disegnati dai soli YAML, sia model-driven (su `mda-shell`) sia code app. Estensioni di progetto con `PocApp.registerComponent` in `app/custom.js`.
+- **Init in un comando**: skill `/dataverse-poc-init` e script `poc-init.mjs` (scaffold, esempi, piano con `🎯 Target ambiente`, `npm install`, primo check); `--update` aggiorna script e renderer di una POC esistente senza toccare `config/`.
+- `poc-add-standard.mjs`: baseline Sales Hub / Customer Service Hub o singole tabelle standard con prefisso e dati demo sintetici generati, senza copia manuale.
+- `check-prereqs.mjs`: verifica in sola lettura di Node, npm, browser, `pac`, `pacx`, profili e server MCP, per stage P o R.
+- `poc-preflight.mjs`: confronta `pac org who`, `pac auth list` e `pacx auth list` con il target del piano e blocca senza conferma dello stage R. `poc-solution-zip.mjs`: legge versione, componenti e generative page di uno zip esportato senza `unzip`.
+- Orchestratore: esegue direttamente gli script e `npm run check` (stage P) invece di delegare a un sotto-agente; `poc-tester` resta per browser, ambiente e metadata.
+- Skill `dataverse-poc-realization` alleggerita: gotcha spostati in `references/gotcha-ambiente.md` e `references/gotcha-genpage.md`, letti solo quando servono.
+- `validate:data` segnala email non su domini demo, IBAN e codici fiscali; lo smoke test conta le simulazioni anche nel record aperto e non le richiede nelle code app.
+- Fix: `MdaShell.renderHeader` leggeva una variabile globale `state` non dichiarata; ora accetta lo stato come terzo parametro.
+- Tutorial `docs/tutorial-init.md`, test `node:test` degli script e del flusso end-to-end in CI, sito GitHub Pages.
+
 ### 1.0.1 — 2026-10-06
 
 - Generative page nella solution: procedura verificata su ambiente reale. Ogni pagina si aggiunge come `uxagentproject` con `--AddRequiredComponents`, perché la strada via app module fallisce con PAC 2.12.2. La verifica si fa sullo zip (`uxagentprojects/<pageId>/`), non su `<RootComponents>`.
