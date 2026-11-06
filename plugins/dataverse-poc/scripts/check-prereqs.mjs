@@ -4,47 +4,16 @@
 //   P (default): prototype stage — Node.js 18+, npm, Edge/Chrome for the smoke test.
 //   R: adds PAC CLI, PACX and their auth profiles (realization in a DEV environment).
 // Exit code 0 when every required tool is available, 1 otherwise.
-import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
-import { delimiter, join } from 'node:path';
+import { join } from 'node:path';
+import { findOnPath, isWin, run } from './lib/proc.mjs';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');
 const stageArg = (args[args.indexOf('--stage') + 1] || 'P').toUpperCase();
 const stage = args.includes('--stage') ? stageArg : 'P';
 if (!['P', 'R'].includes(stage)) { console.error('--stage deve essere P o R'); process.exit(2); }
-const isWin = platform() === 'win32';
-
-function findOnPath(name) {
-    const exts = isWin ? (process.env.PATHEXT || '.EXE;.CMD;.BAT').split(';') : [''];
-    for (const dir of (process.env.PATH || '').split(delimiter)) {
-        for (const ext of exts) {
-            const p = join(dir, name + ext.toLowerCase());
-            if (dir && existsSync(p)) return p;
-            const q = join(dir, name + ext);
-            if (dir && existsSync(q)) return q;
-        }
-    }
-    return null;
-}
-
-function run(path, cmdArgs, timeoutMs = 20000) {
-    return new Promise((resolve) => {
-        const shell = isWin && /\.(cmd|bat)$/i.test(path);
-        let out = '';
-        let child;
-        try {
-            child = spawn(shell ? `"${path}"` : path, cmdArgs, { shell, windowsHide: true, env: { ...process.env, NO_COLOR: '1' } });
-        } catch (e) { resolve({ code: -1, out: e.message }); return; }
-        const timer = setTimeout(() => { child.kill(); resolve({ code: -1, out: `timeout dopo ${timeoutMs / 1000}s` }); }, timeoutMs);
-        child.stdout.on('data', (d) => (out += d));
-        child.stderr.on('data', (d) => (out += d));
-        child.on('error', (e) => { clearTimeout(timer); resolve({ code: -1, out: e.message }); });
-        child.on('close', (code) => { clearTimeout(timer); resolve({ code, out }); });
-    });
-}
-
 const version = (text) => (String(text).match(/\d+\.\d+(?:\.\d+){0,2}/) || [null])[0];
 
 function findBrowser() {
@@ -119,11 +88,11 @@ if (stage === 'R') {
 
 const mcp = mcpConfigText();
 for (const [id, pattern, use, st] of [
-    ['mcp-learn', /microsoftdocs|learn\.microsoft\.com\/api\/mcp/, 'Microsoft Learn: riuso tabelle standard', ['P', 'R']],
+    ['mcp-learn', /microsoftdocs|microsoft-learn|mslearn|learn\.microsoft\.com/, 'Microsoft Learn: riuso tabelle standard', ['P', 'R']],
     ['mcp-appmaker', /appmaker/, 'AppMaker: metadata, form, viste, sitemap', ['R']],
     ['mcp-playwright', /playwright/, 'verifiche nel browser', ['R']],
     ['mcp-markitdown', /markitdown/, 'conversione documenti sorgente', []],
-    ['mcp-icons', /"icons"|icons/, 'icone delle tabelle', []],
+    ['mcp-icons', /icons/, 'icone delle tabelle', []],
 ]) {
     const found = pattern.test(mcp);
     checks.push({ id, name: `MCP ${id.slice(4)}`, status: found ? 'ok' : (st.includes(stage) ? 'warning' : 'info'), version: null, required: false,
