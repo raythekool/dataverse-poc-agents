@@ -1,3 +1,12 @@
+> [!IMPORTANT]
+> **Questo repository è stato spostato in [raythekool/power-platform-plugins](https://github.com/raythekool/power-platform-plugins)** ed è archiviato: qui non arrivano più aggiornamenti. Il plugin `dataverse-poc` continua lì dalla versione 1.2.0, con il supporto a Claude Code.
+>
+> Migrazione:
+> 1. Rimuovere il marketplace `raythekool/dataverse-poc-agents` (VS Code: `chat.plugins.marketplaces`; Copilot CLI: `copilot plugin marketplace remove dataverse-poc-agents`).
+> 2. Aggiungere `raythekool/power-platform-plugins` e installare `dataverse-poc@power-platform-plugins`.
+>
+> Tutorial e sito: [docs/dataverse-poc](https://github.com/raythekool/power-platform-plugins/tree/main/docs/dataverse-poc) · <https://raythekool.github.io/power-platform-plugins/dataverse-poc/>
+
 ## dataverse-poc-agents
 
 Marketplace di plugin per agenti GitHub Copilot (VS Code e Copilot CLI) dedicati alle **POC su Dataverse e Power Platform**: dal requisito al prototipo navigabile in stile Dynamics 365, fino alla realizzazione in un ambiente DEV, con un orchestratore, dieci sotto-agenti specializzati e script deterministici per tutto il lavoro meccanico.
